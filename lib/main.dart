@@ -1,32 +1,54 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_redux/flutter_redux.dart';
+import 'package:instagram_clone/models/index.dart';
+import 'package:instagram_clone/presentation/mixin/init_mixin.dart';
+import 'package:instagram_clone/presentation/routes.dart';
+import 'package:redux/redux.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const InstagramClone());
 }
 
-class MyApp extends StatelessWidget {
+class InstagramClone extends StatefulWidget {
+  const InstagramClone({Key key}) : super(key: key);
+
+  @override
+  _InstagramCloneState createState() => _InstagramCloneState();
+}
+
+class _InstagramCloneState extends State<InstagramClone> with InitMixin<InstagramClone> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: HomePage(),
+    return FutureBuilder<Store<AppState>>(
+      future: future,
+      builder: (BuildContext context, AsyncSnapshot<Store<AppState>> snapshot) {
+        if (snapshot.hasData) {
+          final Store<AppState> store = snapshot.data;
+
+          return StoreProvider<AppState>(
+            store: store,
+            child: MaterialApp(
+              title: 'Instagram clone',
+              theme: ThemeData.dark(),
+              routes: AppRoutes.routes,
+            ),
+          );
+        } else {
+          if (snapshot.hasError) {
+            throw snapshot.error;
+          }
+
+          return MaterialApp(
+            title: 'Instagram clone',
+            theme: ThemeData.dark(),
+            home: const Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          );
+        }
+      },
     );
-  }
-}
-
-class HomePage extends StatefulWidget {
-  const HomePage({Key key})
-  @override
-  _HomePageState createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  @override
-  Widget build(BuildContext context) {
-    return Container();
   }
 }
